@@ -15,123 +15,89 @@
 // THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
 // WHEN I choose to update an employee role
 // THEN I am prompted to select an employee to update and their new role and this information is updated in the database
+// server.js
 const express = require('express');
-// Import and require mysql2
-const mysql = require('mysql2');
+const { getAllDepartments, addDepartment, getAllRoles, addRole, getAllEmployees, addEmployee, updateEmployeeRole } = require('./queries');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
 
-// Express middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// Connect to database
-const db = mysql.createConnection(
-  {
-    host: 'localhost',
-    // MySQL username,
-    user: 'root',
-    // TODO: Add MySQL password here
-    password: 'Money123',
-    database: 'movies_db'
-  },
-  console.log(`Connected to the movies_db database.`)
-);
-
-//Refactor for employee tracker
- 
-// Create a movie
-app.post('/api/new-movie', ({ body }, res) => {
-  const sql = `INSERT INTO movies (movie_name)
-    VALUES (?)`;
-  const params = [body.movie_name];
-  
-  db.query(sql, params, (err, result) => {
-    if (err) {
-      res.status(400).json({ error: err.message });
-      return;
-    }
-    res.json({
-      message: 'success',
-      data: body
-    });
-  });
+// Create department
+app.post('/api/new-department', async (req, res) => {
+  try {
+    const { department_name } = req.body;
+    await addDepartment(department_name);
+    res.json({ message: 'Department added successfully.' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Read all movies
-app.get('/api/movies', (req, res) => {
-  const sql = `SELECT id, movie_name AS title FROM movies`;
-  
-  db.query(sql, (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-       return;
-    }
-    res.json({
-      message: 'success',
-      data: rows
-    });
-  });
+// Read all departments
+app.get('/api/departments', async (req, res) => {
+  try {
+    const departments = await getAllDepartments();
+    res.json({ message: 'success', data: departments });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Delete a movie
-app.delete('/api/movie/:id', (req, res) => {
-  const sql = `DELETE FROM movies WHERE id = ?`;
-  const params = [req.params.id];
-  
-  db.query(sql, params, (err, result) => {
-    if (err) {
-      res.statusMessage(400).json({ error: res.message });
-    } else if (!result.affectedRows) {
-      res.json({
-      message: 'Movie not found'
-      });
-    } else {
-      res.json({
-        message: 'deleted',
-        changes: result.affectedRows,
-        id: req.params.id
-      });
-    }
-  });
+// Create role
+app.post('/api/new-role', async (req, res) => {
+  try {
+    const { title, salary, department_id } = req.body;
+    await addRole(title, salary, department_id);
+    res.json({ message: 'Role added successfully.' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Read list of all reviews and associated movie name using LEFT JOIN
-app.get('/api/movie-reviews', (req, res) => {
-  const sql = `SELECT movies.movie_name AS movie, reviews.review FROM reviews LEFT JOIN movies ON reviews.movie_id = movies.id ORDER BY movies.movie_name;`;
-  db.query(sql, (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.json({
-      message: 'success',
-      data: rows
-    });
-  });
+// Read all roles
+app.get('/api/roles', async (req, res) => {
+  try {
+    const roles = await getAllRoles();
+    res.json({ message: 'success', data: roles });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// BONUS: Update review name
-app.put('/api/review/:id', (req, res) => {
-  const sql = `UPDATE reviews SET review = ? WHERE id = ?`;
-  const params = [req.body.review, req.params.id];
+// Create employee
+app.post('/api/new-employee', async (req, res) => {
+  try {
+    const { first_name, last_name, role_id, manager_id } = req.body;
+    await addEmployee(first_name, last_name, role_id, manager_id);
+    res.json({ message: 'Employee added successfully.' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
-  db.query(sql, params, (err, result) => {
-    if (err) {
-      res.status(400).json({ error: err.message });
-    } else if (!result.affectedRows) {
-      res.json({
-        message: 'Movie not found'
-      });
-    } else {
-      res.json({
-        message: 'success',
-        data: req.body,
-        changes: result.affectedRows
-      });
-    }
-  });
+// Read all employees
+app.get('/api/employees', async (req, res) => {
+  try {
+    const employees = await getAllEmployees();
+    res.json({ message: 'success', data: employees });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update employee role
+app.put('/api/update-employee-role/:id', async (req, res) => {
+  try {
+    const { role_id } = req.body;
+    const { id } = req.params;
+    await updateEmployeeRole(id, role_id);
+    res.json({ message: 'Employee role updated successfully.' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Default response for any other request (Not Found)
