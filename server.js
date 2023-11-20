@@ -17,7 +17,7 @@
 // THEN I am prompted to select an employee to update and their new role and this information is updated in the database
 // server.js
 const express = require('express');
-const { getAllDepartments, addDepartment, getAllRoles, addRole, getAllEmployees, addEmployee, updateEmployeeRole } = require('./queries');
+const { getAllDepartments, addDepartment, getAllRoles, addRole, getAllEmployees, addEmployee, updateEmployeeRole } = require('./db/queries');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
