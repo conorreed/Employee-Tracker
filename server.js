@@ -1,5 +1,5 @@
 const express = require('express');
-const inquirer = require('inquirer');
+import inquirer from 'inquirer';
 const {
   getAllDepartments,
   addDepartment,
