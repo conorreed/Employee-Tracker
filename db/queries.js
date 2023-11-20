@@ -1,5 +1,5 @@
 // queries.js
-const db = require('./db/connection');
+const db = require('./connection');
 
 // Function to get all departments
 function getAllDepartments() {
