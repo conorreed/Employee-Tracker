@@ -62,6 +62,7 @@ async function start() {
         break;
       case 'quit':
         console.log('Exiting the application.');
+        process.exit(); // Terminate the Node.js process
         break;
       default:
         console.log('Invalid action. Please try again.');
